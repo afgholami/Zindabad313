@@ -16,6 +16,52 @@
 
 ---
 
+## 2026-05-14 — 🚀 PREMIER DÉPLOIEMENT EN LIGNE
+
+### Résultat
+**https://ehsan.laus-angeles.ch** répond avec notre page d'accueil 🎉
+
+### Stack confirmée et fonctionnelle
+- **Hébergeur** : Infomaniak (Genève)
+- **IP du serveur** : `185.125.27.89` (IPv4), `2001:1600:4:11::576` (IPv6)
+- **URL de prévisualisation Infomaniak** : `fdedu9q1nk.preview.hosting-ik.com`
+- **Chemin absolu sur serveur** : `/sites/ehsan.laus-angeles.ch`
+- **Runtime** : Node.js 24 (Infomaniak n'avait pas 22 dispo dans le sélecteur)
+- **Commande de build** : `npm install` (déclenché manuellement via bouton "Build")
+- **Commande d'exécution** : `npm start` (= `node server.js`)
+- **Port d'écoute** : 3000 (variable `PORT` non utilisée côté Infomaniak)
+- **DNS** : géré par **Cloudflare** (pas Infomaniak !) sur `laus-angeles.ch`
+- **Record DNS** : A `ehsan` → `185.125.27.89`, **DNS only** (proxy gris)
+- **SSL** : Let's Encrypt (gratuit, auto-renouvelé tous les 90 jours par Infomaniak)
+- **Auth Git** : PAT GitHub fine-grained (full-access pour l'instant, à restreindre avant prod)
+
+### Découvertes clés
+1. **Cloudflare gère le DNS** de `laus-angeles.ch`, pas Infomaniak — il a fallu ajouter le record A manuellement
+2. **Le build n'est pas auto-déclenché** sur push Git — il faut cliquer le bouton "Build" sur le dashboard Infomaniak, ou configurer un webhook
+3. **L'app Node ne démarre pas après création** — toujours cliquer "Lancer" la première fois
+4. **`process.env.PORT`** : Infomaniak n'a pas semblé fournir cette variable, le fallback à 3000 a marché
+
+### Workflow de déploiement actuel
+```
+1. Code en local ou via Claude
+2. git push origin main (via PR + merge)
+3. Sur le dashboard Infomaniak → cliquer "Build" (déclenche npm install)
+4. L'app redémarre automatiquement (toggle "Construire automatiquement" ON)
+5. Site mis à jour en ~30 sec
+```
+
+À automatiser plus tard : webhook GitHub → Infomaniak pour skip l'étape 3.
+
+### Prochaines étapes
+- [ ] Générer le premier vrai design via Google Stitch
+- [ ] L'intégrer dans `public/index.html`
+- [ ] Tester le déploiement (push → build → vérifier en ligne)
+- [ ] Configurer un webhook GitHub → Infomaniak pour auto-build sur push
+- [ ] Récupérer l'accès `gholami.ch` (toujours en attente)
+- [ ] Restreindre le token Infomaniak en read-only avant la mise en prod
+
+---
+
 ## 2026-05-14 — Premier déploiement : galère et leçons
 
 ### Symptômes observés
