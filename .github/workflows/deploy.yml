@@ -28,53 +28,51 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Obtenir un token OAuth2
-        id: token
+      - name: Vérifier le token Personal Access
         run: |
-          set -euo pipefail
-          TOKEN_RESPONSE=$(curl -s -X POST "$INFOMANIAK_API_BASE/oauth2/token" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "grant_type=client_credentials" \
-            -d "client_id=${{ secrets.INFOMANIAK_CLIENT_ID }}" \
-            -d "client_secret=${{ secrets.INFOMANIAK_CLIENT_SECRET }}")
-
-          if ! echo "$TOKEN_RESPONSE" | jq -e .access_token > /dev/null 2>&1; then
-            echo "::error::Échec de l'authentification OAuth2"
-            echo "$TOKEN_RESPONSE"
+          if [ -z "${{ secrets.INFOMANIAK_API_TOKEN }}" ]; then
+            echo "::error::Secret INFOMANIAK_API_TOKEN manquant."
+            echo "::error::Génère un Personal Access Token sur https://manager.infomaniak.com/v3/infomaniak-api"
             exit 1
           fi
-
-          ACCESS_TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r .access_token)
-          echo "::add-mask::$ACCESS_TOKEN"
-          echo "access_token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
-          echo "✅ Token OAuth2 obtenu"
+          echo "✅ Token présent"
 
       - name: Discover — liste les produits/sites Infomaniak
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'discover'
         env:
-          ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
+          TOKEN: ${{ secrets.INFOMANIAK_API_TOKEN }}
         run: |
           set -euo pipefail
+          echo "=== /1/profile (test auth) ==="
+          curl -s -H "Authorization: Bearer $TOKEN" \
+            "$INFOMANIAK_API_BASE/1/profile" | jq '.' || true
+
+          echo ""
           echo "=== /1/product ==="
-          curl -s -H "Authorization: Bearer $ACCESS_TOKEN" \
+          curl -s -H "Authorization: Bearer $TOKEN" \
             "$INFOMANIAK_API_BASE/1/product" | jq '.' || true
 
           echo ""
-          echo "=== /1/hosting ==="
-          curl -s -H "Authorization: Bearer $ACCESS_TOKEN" \
-            "$INFOMANIAK_API_BASE/1/hosting" | jq '.' || true
+          echo "=== /1/product?service_name=hosting ==="
+          curl -s -H "Authorization: Bearer $TOKEN" \
+            "$INFOMANIAK_API_BASE/1/product?service_name=hosting" | jq '.' || true
 
           if [ -n "${{ secrets.INFOMANIAK_HOSTING_ID }}" ]; then
             echo ""
+            echo "=== /1/hosting/${{ secrets.INFOMANIAK_HOSTING_ID }} ==="
+            curl -s -H "Authorization: Bearer $TOKEN" \
+              "$INFOMANIAK_API_BASE/1/hosting/${{ secrets.INFOMANIAK_HOSTING_ID }}" | jq '.' || true
+
+            echo ""
             echo "=== /1/hosting/${{ secrets.INFOMANIAK_HOSTING_ID }}/site ==="
-            curl -s -H "Authorization: Bearer $ACCESS_TOKEN" \
+            curl -s -H "Authorization: Bearer $TOKEN" \
               "$INFOMANIAK_API_BASE/1/hosting/${{ secrets.INFOMANIAK_HOSTING_ID }}/site" | jq '.' || true
           fi
 
       - name: Trigger build de l'application
         if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'build')
         env:
-          ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
+          TOKEN: ${{ secrets.INFOMANIAK_API_TOKEN }}
           HOSTING_ID: ${{ secrets.INFOMANIAK_HOSTING_ID }}
           SITE_ID: ${{ secrets.INFOMANIAK_SITE_ID }}
         run: |
@@ -85,42 +83,39 @@ jobs:
             exit 1
           fi
 
-          # Tentative 1 — endpoint le plus probable
-          ENDPOINT="$INFOMANIAK_API_BASE/1/hosting/$HOSTING_ID/site/$SITE_ID/application/build"
-          echo "🔨 POST $ENDPOINT"
-          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST \
-            -H "Authorization: Bearer $ACCESS_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"remove_node_modules": false}' \
-            "$ENDPOINT")
+          ENDPOINTS=(
+            "$INFOMANIAK_API_BASE/1/hosting/$HOSTING_ID/site/$SITE_ID/application/build"
+            "$INFOMANIAK_API_BASE/1/hosting/$HOSTING_ID/site/$SITE_ID/node/build"
+            "$INFOMANIAK_API_BASE/1/hosting/$HOSTING_ID/site/$SITE_ID/build"
+          )
 
-          BODY=$(echo "$RESPONSE" | sed '$d')
-          STATUS=$(echo "$RESPONSE" | tail -n1 | cut -d: -f2)
-          echo "Status: $STATUS"
-          echo "Body: $BODY"
+          for ENDPOINT in "${ENDPOINTS[@]}"; do
+            echo "🔨 POST $ENDPOINT"
+            RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{"remove_node_modules": false}' \
+              "$ENDPOINT")
 
-          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 300 ]; then
-            echo "✅ Build déclenché avec succès"
-            exit 0
-          fi
+            BODY=$(echo "$RESPONSE" | sed '$d')
+            STATUS=$(echo "$RESPONSE" | tail -n1 | cut -d: -f2)
+            echo "Status: $STATUS"
+            echo "Body: $BODY"
 
-          echo "::warning::Endpoint principal a échoué (HTTP $STATUS). Tentative alternative..."
+            if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 300 ]; then
+              echo "✅ Build déclenché avec succès via $ENDPOINT"
+              exit 0
+            fi
+            echo ""
+          done
 
-          # Tentative 2 — variante avec /node
-          ALT_ENDPOINT="$INFOMANIAK_API_BASE/1/hosting/$HOSTING_ID/site/$SITE_ID/node/build"
-          echo "🔨 POST $ALT_ENDPOINT"
-          curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST \
-            -H "Authorization: Bearer $ACCESS_TOKEN" \
-            "$ALT_ENDPOINT"
-
-          echo ""
-          echo "::error::Aucun endpoint connu n'a marché. Lance le workflow en mode 'discover' et regarde la réponse."
+          echo "::error::Aucun endpoint connu n'a marché. Lance le workflow en mode 'discover' et inspecte la réponse."
           exit 1
 
       - name: Restart de l'application
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'restart'
         env:
-          ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
+          TOKEN: ${{ secrets.INFOMANIAK_API_TOKEN }}
           HOSTING_ID: ${{ secrets.INFOMANIAK_HOSTING_ID }}
           SITE_ID: ${{ secrets.INFOMANIAK_SITE_ID }}
         run: |
@@ -128,5 +123,5 @@ jobs:
           ENDPOINT="$INFOMANIAK_API_BASE/1/hosting/$HOSTING_ID/site/$SITE_ID/application/restart"
           echo "🔄 POST $ENDPOINT"
           curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST \
-            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            -H "Authorization: Bearer $TOKEN" \
             "$ENDPOINT"
