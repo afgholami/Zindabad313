@@ -93,11 +93,11 @@ Zindabad313/
 |---|---|
 | Repo GitHub | ✅ Créé (`afgholami/zindabad313`) |
 | Domaine `gholami.ch` (final) | 🟡 Hébergé chez Infomaniak — accès en cours de récupération |
-| Sous-domaine `ehsan.laus-angeles.ch` (test) | 🟡 Création en cours sur Infomaniak (Node.js, installation avancée) |
+| Sous-domaine `ehsan.laus-angeles.ch` (test) | ✅ **EN LIGNE** sur https://ehsan.laus-angeles.ch (Infomaniak Node.js + Let's Encrypt + DNS Cloudflare) |
 | Structure projet | ✅ Initialisée |
 | Workflow Claude | ✅ Documenté |
-| Squelette Express (server.js + public/) | ✅ Créé, prêt à déployer |
-| Stitch (Google) | 🟡 À utiliser pour générer le HTML/CSS (mode web ou skill en local) |
+| Squelette Express (server.js + public/) | ✅ Déployé et tourne |
+| Stitch (Google) | 🟡 Prochaine étape : générer le premier vrai design |
 | Skill Stitch officiel (Google Labs) | 🟡 Script d'install prêt (`scripts/install-stitch-skill.sh`) — à lancer en local |
 
 ## 6. Ce que Claude doit faire automatiquement
