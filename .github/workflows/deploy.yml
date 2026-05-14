@@ -1,14 +1,18 @@
 name: Auto-deploy on Infomaniak
 
+# Désactivé temporairement sur push : l'API publique d'Infomaniak ne semble
+# pas exposer l'endpoint de build pour le produit Node.js (hosting_3).
+# Voir docs/JOURNAL.md pour les détails. À reprendre :
+#  - soit via SSH + commande de build
+#  - soit en reverse-engineering de l'UI manager.infomaniak.com (DevTools)
+#  - soit via ticket support Infomaniak pour obtenir l'endpoint officiel
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       action:
         description: "Action à exécuter"
         required: true
-        default: "build"
+        default: "discover"
         type: choice
         options:
           - discover

@@ -16,6 +16,57 @@
 
 ---
 
+## 2026-05-14 — Tentative auto-deploy API Infomaniak (pause)
+
+### Contexte
+Après le succès du déploiement manuel, tentative de mettre en place un
+auto-deploy via GitHub Actions appelant l'API Infomaniak.
+
+### Ce qu'on a fait
+1. Créé une **app OAuth2** sur Infomaniak → puis abandonnée (l'API ne supporte
+   pas le grant `client_credentials`, retourne `method_not_found`)
+2. Créé un **Personal Access Token** avec scope `all` → fonctionne pour `/1/profile`
+   et `/1/product`
+3. Trouvé les IDs des produits :
+   - `hosting` (id 462070) : hébergement web classique laus-angeles.ch
+   - **`hosting_3` (id 111713) : produit Node.js (laus-angeles.ch_nodejs)** ← celui qu'on veut
+4. Workflow `.github/workflows/deploy.yml` qui s'authentifie + appelle l'API
+
+### Le problème
+**Tous les endpoints de gestion testés retournent `404 method_not_found` :**
+- `/1/hosting/{id}` (et `/site`)
+- `/1/hosting_3/{id}` (et `/site`)
+- `/2/hosting_3/{id}`
+- `/1/product/{id}` (et `/site`)
+- `/1/cloud/{id}` (et `/site`)
+- `/1/site` (tout court ou avec filtres)
+
+Soit le scope du token ne permet pas, soit ces endpoints sont **privés**
+(utilisés uniquement par leur UI manager.infomaniak.com).
+
+### Pistes pour la prochaine session
+1. **SSH** : générer une clé, l'ajouter à Infomaniak, déclencher build via
+   commande SSH dans GitHub Action
+2. **Reverse engineering** : ouvrir DevTools du navigateur, cliquer "Build"
+   manuellement, capturer la requête réseau pour récupérer l'endpoint exact
+3. **Support Infomaniak** : leur demander directement l'endpoint API pour
+   trigger un build sur hosting_3
+4. **Polling Git** : configurer Infomaniak (s'il a l'option) pour poller le
+   repo Git toutes les X minutes
+
+### État actuel
+- Workflow GitHub Actions **désactivé** sur push auto (sinon il fail à chaque commit)
+- Reste accessible en `workflow_dispatch` manuel (utile pour re-discover plus tard)
+- Secrets GitHub à conserver : `INFOMANIAK_API_TOKEN`, `INFOMANIAK_HOSTING_ID` (= 111713)
+- **Workflow manuel** : après chaque push, cliquer "Build" sur le dashboard Infomaniak (1 clic)
+
+### Décision
+Pause de la session à 5h50 du matin. Le site est en ligne, le workflow manuel
+suffit. Auto-deploy à reprendre demain avec une approche différente (SSH le
+plus probable).
+
+---
+
 ## 2026-05-14 — 🚀 PREMIER DÉPLOIEMENT EN LIGNE
 
 ### Résultat
