@@ -10,9 +10,13 @@
 - **Nom** : Zindabad313
 - **Propriétaire** : afgholami
 - **Repo GitHub** : `afgholami/zindabad313`
-- **Domaine principal** : `gholami.ch`
+- **Domaine final (production)** : `gholami.ch`
+- **Domaine de test (bac à sable)** : `ehsan.laus-angeles.ch` (sous-domaine sur `laus-angeles.ch`)
 - **Hébergeur** : **Infomaniak** (Suisse, Genève) — confirmé via IP `217.26.61.109`
+- **Stack** : Node.js 22 LTS + Express (sert du HTML/CSS statique)
+- **Outil de design UI** : **Google Stitch** (https://stitch.withgoogle.com/) — génère du HTML/CSS Tailwind à partir de prompts
 - **Langue de travail** : Français (utilisateur francophone)
+- **Objectif** : monter en compétence sur le sous-domaine de test, puis migrer le résultat validé vers `gholami.ch`
 
 ## 2. Mode de collaboration avec Claude
 
@@ -81,10 +85,12 @@ Zindabad313/
 | Élément | Statut |
 |---|---|
 | Repo GitHub | ✅ Créé (`afgholami/zindabad313`) |
-| Domaine `gholami.ch` | 🟡 Hébergé chez Infomaniak — accès en cours de récupération |
+| Domaine `gholami.ch` (final) | 🟡 Hébergé chez Infomaniak — accès en cours de récupération |
+| Sous-domaine `ehsan.laus-angeles.ch` (test) | 🟡 Création en cours sur Infomaniak (Node.js, installation avancée) |
 | Structure projet | ✅ Initialisée |
 | Workflow Claude | ✅ Documenté |
-| Code applicatif | ❌ Pas encore commencé |
+| Code applicatif | ❌ Pas encore commencé (Express minimal à créer) |
+| Stitch (Google) | 🟡 À utiliser pour générer le HTML/CSS |
 
 ## 6. Ce que Claude doit faire automatiquement
 

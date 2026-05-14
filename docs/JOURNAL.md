@@ -7,6 +7,39 @@
 
 ---
 
+## 2026-05-14 — Choix stack & sous-domaine de test
+
+### Contexte
+- Récupération d'accès `gholami.ch` toujours en cours
+- L'utilisateur a créé un sous-domaine `ehsan.laus-angeles.ch` sur Infomaniak
+- Objectif : utiliser ce sous-domaine comme **bac à sable** pour s'entraîner
+  avant de pousser sur `gholami.ch`
+
+### Décisions
+- **Stack** : Node.js 22 LTS + Express (sert du HTML/CSS statique)
+- **Outil UI** : **Google Stitch** (https://stitch.withgoogle.com/) — l'utilisateur
+  veut s'en servir pour générer le design
+- **Installation Infomaniak** : "Installation avancée" (pas le template rapide)
+  → environnement vierge, on déploie notre propre code depuis le repo Git
+- **Point d'entrée** : `server.js`
+- **Gestionnaire de paquets** : npm
+
+### Workflow type prévu
+```
+Stitch génère le HTML/CSS  →  on l'intègre dans /public/  →
+Express le sert  →  git push  →  Infomaniak déploie  →
+test sur ehsan.laus-angeles.ch  →  une fois validé : migration vers gholami.ch
+```
+
+### Prochaines étapes
+- [ ] Finir la config Node.js sur Infomaniak (version 22, entry point `server.js`)
+- [ ] Récupérer les infos de déploiement Infomaniak (Git push ou SFTP ?)
+- [ ] Créer le squelette Express minimal (`server.js`, `package.json`, `public/`)
+- [ ] Premier déploiement de test (juste "Hello world" en HTML)
+- [ ] Générer un premier écran avec Stitch et l'intégrer
+
+---
+
 ## 2026-05-14 — Initialisation du projet
 
 ### Contexte

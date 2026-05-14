@@ -5,13 +5,34 @@
 
 ---
 
-## 1. Domaine
+## 1. Domaines
 
+### Domaine final (production)
 | Info | Valeur |
 |---|---|
 | Nom de domaine | `gholami.ch` |
 | Extension | `.ch` (Suisse) |
 | Registrar (probable) | Infomaniak (à confirmer une fois connecté) |
+| Statut | 🟡 Accès en cours de récupération |
+
+### Sous-domaine de test (bac à sable)
+| Info | Valeur |
+|---|---|
+| Sous-domaine | `ehsan.laus-angeles.ch` |
+| Domaine parent | `laus-angeles.ch` (propriété de l'utilisateur) |
+| Rôle | Environnement de test pour s'entraîner avec Google Stitch avant de pousser sur `gholami.ch` |
+| Statut | 🟡 Création en cours (Node.js, installation avancée sur Infomaniak) |
+
+## 1bis. Stack technique choisie
+
+| Élément | Valeur |
+|---|---|
+| Runtime | **Node.js 22 LTS** |
+| Framework serveur | **Express** (minimal, sert des fichiers statiques) |
+| Gestionnaire de paquets | **npm** |
+| Point d'entrée | `server.js` |
+| Source du HTML/CSS | **Google Stitch** (https://stitch.withgoogle.com/) — génère du HTML + Tailwind CSS |
+| Mode de déploiement | Git push sur Infomaniak (à confirmer une fois la config terminée) |
 
 ## 2. Hébergement
 
