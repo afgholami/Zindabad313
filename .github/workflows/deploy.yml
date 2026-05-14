@@ -41,33 +41,45 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'discover'
         env:
           TOKEN: ${{ secrets.INFOMANIAK_API_TOKEN }}
+          HOSTING_ID: ${{ secrets.INFOMANIAK_HOSTING_ID }}
         run: |
           set -euo pipefail
-          echo "=== /1/profile (test auth) ==="
-          curl -s -H "Authorization: Bearer $TOKEN" \
-            "$INFOMANIAK_API_BASE/1/profile" | jq '.' || true
 
-          echo ""
-          echo "=== /1/product ==="
-          curl -s -H "Authorization: Bearer $TOKEN" \
-            "$INFOMANIAK_API_BASE/1/product" | jq '.' || true
-
-          echo ""
-          echo "=== /1/product?service_name=hosting ==="
-          curl -s -H "Authorization: Bearer $TOKEN" \
-            "$INFOMANIAK_API_BASE/1/product?service_name=hosting" | jq '.' || true
-
-          if [ -n "${{ secrets.INFOMANIAK_HOSTING_ID }}" ]; then
+          # Helper pour appeler l'API et logger le résultat
+          probe() {
+            local label="$1"
+            local url="$2"
             echo ""
-            echo "=== /1/hosting/${{ secrets.INFOMANIAK_HOSTING_ID }} ==="
-            curl -s -H "Authorization: Bearer $TOKEN" \
-              "$INFOMANIAK_API_BASE/1/hosting/${{ secrets.INFOMANIAK_HOSTING_ID }}" | jq '.' || true
+            echo "═══ $label"
+            echo "GET $url"
+            local resp
+            resp=$(curl -s -w "\n__STATUS__:%{http_code}" -H "Authorization: Bearer $TOKEN" "$url")
+            local status
+            status=$(echo "$resp" | tail -n1 | cut -d: -f2)
+            local body
+            body=$(echo "$resp" | sed '$d')
+            echo "Status: $status"
+            echo "$body" | jq '.' 2>/dev/null || echo "$body"
+          }
 
-            echo ""
-            echo "=== /1/hosting/${{ secrets.INFOMANIAK_HOSTING_ID }}/site ==="
-            curl -s -H "Authorization: Bearer $TOKEN" \
-              "$INFOMANIAK_API_BASE/1/hosting/${{ secrets.INFOMANIAK_HOSTING_ID }}/site" | jq '.' || true
+          probe "Test auth" "$INFOMANIAK_API_BASE/1/profile"
+          probe "Tous les produits" "$INFOMANIAK_API_BASE/1/product"
+
+          if [ -n "$HOSTING_ID" ]; then
+            # Patterns possibles pour le produit Node.js (hosting_3)
+            probe "v1 /hosting/$HOSTING_ID" "$INFOMANIAK_API_BASE/1/hosting/$HOSTING_ID"
+            probe "v1 /hosting/$HOSTING_ID/site" "$INFOMANIAK_API_BASE/1/hosting/$HOSTING_ID/site"
+            probe "v1 /hosting_3/$HOSTING_ID" "$INFOMANIAK_API_BASE/1/hosting_3/$HOSTING_ID"
+            probe "v1 /hosting_3/$HOSTING_ID/site" "$INFOMANIAK_API_BASE/1/hosting_3/$HOSTING_ID/site"
+            probe "v2 /hosting_3/$HOSTING_ID" "$INFOMANIAK_API_BASE/2/hosting_3/$HOSTING_ID"
+            probe "v1 /product/$HOSTING_ID" "$INFOMANIAK_API_BASE/1/product/$HOSTING_ID"
+            probe "v1 /product/$HOSTING_ID/site" "$INFOMANIAK_API_BASE/1/product/$HOSTING_ID/site"
+            probe "v1 /cloud/$HOSTING_ID" "$INFOMANIAK_API_BASE/1/cloud/$HOSTING_ID"
+            probe "v1 /cloud/$HOSTING_ID/site" "$INFOMANIAK_API_BASE/1/cloud/$HOSTING_ID/site"
+            probe "v1 /site (filtré sur hosting)" "$INFOMANIAK_API_BASE/1/site?service_id=57&product_id=$HOSTING_ID"
           fi
+
+          probe "v1 /site (tous)" "$INFOMANIAK_API_BASE/1/site"
 
       - name: Trigger build de l'application
         if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'build')
