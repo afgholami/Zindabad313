@@ -7,6 +7,78 @@
 
 ---
 
+## ⏰ Rappels & échéances
+
+| Échéance | Quoi faire |
+|---|---|
+| **2027-05-14** (dans 1 an) | Renouveler le token GitHub `infomaniak-deploy-zindabad313` (PAT fine-grained, scope: Contents Read-only sur Zindabad313). Sinon le déploiement Infomaniak échouera. |
+| **Avant la mise en prod sur gholami.ch** | **Dette de sécu** : régénérer le token Infomaniak en `Contents: Read-only` uniquement (actuellement full-access par choix de l'utilisateur). |
+
+---
+
+## 2026-05-14 — Premier déploiement : galère et leçons
+
+### Symptômes observés
+1. **App créée mais "Arrêté"** → il faut cliquer "Lancer" manuellement la 1ère fois
+2. **Erreur `/entrypoints/start.sh: Nom: command not found`** → autocorrect iPhone a transformé `npm` en `Nom` dans le champ "Commande d'exécution"
+3. **Erreur `MODULE_NOT_FOUND` pour `express`** → on avait décoché "Définir la commande de construction" sur mon conseil → du coup `npm install` ne se lance pas automatiquement
+4. **Erreur SSH `cd /srv/customer/sites/<ehsan...>`** → les `<` et `>` (artefacts d'affichage de mon message Claude) ont été tapés littéralement → bash a interprété ça comme redirection
+5. **Console SSH iPhone ne permet pas le copier-coller** → typer manuellement les commandes est galère
+
+### Fixes appliqués
+- Commande d'exécution Node.js : `npm start` (sans autocorrect)
+- Commande de construction Node.js : `npm install` (à activer) — pour que les deps s'installent à chaque déploiement Git
+- Workflow de redéploiement : push sur `main` → Infomaniak pull + npm install + npm start (auto)
+
+### Leçons pour les futures sessions
+- ❌ **Ne PAS écrire de placeholders dans les commandes shell** que l'utilisateur va copier (genre `<nom-de-domaine>`) → toujours donner la valeur finale exacte
+- ❌ **Ne JAMAIS dire "décoche le build command"** sur un projet Node avec dépendances → il faut `npm install` à chaque déploiement
+- ✅ **Toujours rappeler de désactiver l'autocorrect** quand on demande de taper du code sur mobile
+- ✅ **Préférer le workflow "push commit → redeploy auto"** plutôt que SSH manuel sur mobile
+
+### Prochaines étapes
+- [ ] L'utilisateur active le build `npm install` dans la config Node.js Infomaniak
+- [ ] Ce commit déclenche un redéploiement automatique
+- [ ] Vérifier que `ehsan.laus-angeles.ch` répond avec notre page d'accueil
+- [ ] Installer le certificat SSL Let's Encrypt
+- [ ] Première intégration Stitch
+
+---
+
+## 2026-05-14 — Merge PR #1 + choix auth déploiement
+
+### Contexte
+- L'utilisateur a fini la config Infomaniak méthode "Git", arrivé à l'écran
+  où il faut coller l'URL du dépôt
+- Repo confirmé **privé** par l'utilisateur
+- Infomaniak utilise un clone HTTPS → ne marche pas sans credentials sur un
+  repo privé
+
+### Décisions
+- **PR #1 mergée dans `main`** (squash merge) : tout le code applicatif est
+  maintenant sur la branche déployable
+- **Auth pour Infomaniak** : option B retenue → **fine-grained PAT GitHub**
+  embarqué dans l'URL : `https://oauth2:TOKEN@github.com/afgholami/Zindabad313.git`
+- **Token** : scope minimal (Contents read-only sur Zindabad313 uniquement),
+  expiration 1 an
+- Options écartées :
+  - A (rendre repo public) : refusée par l'utilisateur
+  - C (SSH manuel) : perdrait l'auto-déploiement sur push
+
+### Sécurité
+- Token stocké chez Infomaniak — ne JAMAIS le commit dans le repo
+- À renouveler avant **2027-05-14**
+- En cas de fuite → Revoke immédiat sur GitHub Settings → PAT
+
+### Prochaines étapes
+- [ ] L'utilisateur génère le token et lance "Installer" sur Infomaniak
+- [ ] Vérifier que le premier déploiement passe (page test visible sur ehsan.laus-angeles.ch)
+- [ ] Identifier le port Node attendu par Infomaniak + adapter server.js si besoin
+- [ ] Documenter l'URL/chemin/port exacts dans docs/PROJECT.md
+- [ ] Une fois OK : premier vrai design avec Stitch
+
+---
+
 ## 2026-05-14 — Squelette Express + workflow Stitch
 
 ### Contexte
