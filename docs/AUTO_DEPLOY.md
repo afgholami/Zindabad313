@@ -6,31 +6,36 @@
 
 ## 🔧 Setup (à faire une seule fois)
 
-### 1. Credentials Infomaniak OAuth2
+### 1. Générer un Personal Access Token Infomaniak
 
-Tu as déjà créé une **application OAuth2** sur Infomaniak (Profil → Application API).
-Récupère :
-- **Client ID** (visible dans la liste des apps)
-- **Client Secret** (généré une fois, à conserver dans un gestionnaire de mots de passe)
+1. Va sur https://manager.infomaniak.com/v3/infomaniak-api
+2. Onglet **"Tokens"** (PAS "Applications OAuth2", c'est différent)
+3. **Créer un token**
+4. Donne-lui un nom (`github-actions-zindabad313`)
+5. Scope : **basic** (suffit pour gérer l'hébergement)
+6. Durée : 1 an (ou plus si dispo)
+7. **Copie le token** (commence par un long string aléatoire)
 
 ### 2. Trouver les IDs `hosting` et `site`
 
-Lance le workflow en mode **discover** (voir section "Utilisation") sans `INFOMANIAK_HOSTING_ID` ni `INFOMANIAK_SITE_ID`. Il listera les hostings/sites disponibles. Note :
-- `INFOMANIAK_HOSTING_ID` (ex: `123456`)
-- `INFOMANIAK_SITE_ID` (ex: `789012`)
+Lance le workflow en mode **discover** (voir section "Utilisation") sans
+`INFOMANIAK_HOSTING_ID` ni `INFOMANIAK_SITE_ID`. Il listera tes produits → tu y trouveras les IDs.
 
-### 3. Ajouter les 4 secrets sur GitHub
+### 3. Ajouter les 3 secrets sur GitHub
 
 Va sur https://github.com/afgholami/Zindabad313/settings/secrets/actions
 
-Clique **New repository secret**, ajoute 4 secrets :
+Clique **New repository secret**, ajoute 3 secrets :
 
 | Nom du secret | Valeur |
 |---|---|
-| `INFOMANIAK_CLIENT_ID` | Le Client ID OAuth2 |
-| `INFOMANIAK_CLIENT_SECRET` | Le Client Secret OAuth2 |
+| `INFOMANIAK_API_TOKEN` | Le Personal Access Token généré à l'étape 1 |
 | `INFOMANIAK_HOSTING_ID` | L'ID du hosting (trouvé via discover) |
 | `INFOMANIAK_SITE_ID` | L'ID du site (trouvé via discover) |
+
+> Les secrets OAuth2 `INFOMANIAK_CLIENT_ID` / `INFOMANIAK_CLIENT_SECRET` créés
+> initialement ne servent finalement plus (l'OAuth2 client_credentials n'est
+> pas supporté par Infomaniak). Tu peux les supprimer si tu veux.
 
 ## 🚀 Utilisation
 
