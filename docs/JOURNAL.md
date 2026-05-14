@@ -7,6 +7,48 @@
 
 ---
 
+## ⏰ Rappels & échéances
+
+| Échéance | Quoi faire |
+|---|---|
+| **2027-05-14** (dans 1 an) | Renouveler le token GitHub `infomaniak-deploy-zindabad313` (PAT fine-grained, scope: Contents Read-only sur Zindabad313). Sinon le déploiement Infomaniak échouera. |
+
+---
+
+## 2026-05-14 — Merge PR #1 + choix auth déploiement
+
+### Contexte
+- L'utilisateur a fini la config Infomaniak méthode "Git", arrivé à l'écran
+  où il faut coller l'URL du dépôt
+- Repo confirmé **privé** par l'utilisateur
+- Infomaniak utilise un clone HTTPS → ne marche pas sans credentials sur un
+  repo privé
+
+### Décisions
+- **PR #1 mergée dans `main`** (squash merge) : tout le code applicatif est
+  maintenant sur la branche déployable
+- **Auth pour Infomaniak** : option B retenue → **fine-grained PAT GitHub**
+  embarqué dans l'URL : `https://oauth2:TOKEN@github.com/afgholami/Zindabad313.git`
+- **Token** : scope minimal (Contents read-only sur Zindabad313 uniquement),
+  expiration 1 an
+- Options écartées :
+  - A (rendre repo public) : refusée par l'utilisateur
+  - C (SSH manuel) : perdrait l'auto-déploiement sur push
+
+### Sécurité
+- Token stocké chez Infomaniak — ne JAMAIS le commit dans le repo
+- À renouveler avant **2027-05-14**
+- En cas de fuite → Revoke immédiat sur GitHub Settings → PAT
+
+### Prochaines étapes
+- [ ] L'utilisateur génère le token et lance "Installer" sur Infomaniak
+- [ ] Vérifier que le premier déploiement passe (page test visible sur ehsan.laus-angeles.ch)
+- [ ] Identifier le port Node attendu par Infomaniak + adapter server.js si besoin
+- [ ] Documenter l'URL/chemin/port exacts dans docs/PROJECT.md
+- [ ] Une fois OK : premier vrai design avec Stitch
+
+---
+
 ## 2026-05-14 — Squelette Express + workflow Stitch
 
 ### Contexte
