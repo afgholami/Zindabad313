@@ -67,17 +67,24 @@ Le script `scripts/ship.sh` automatise ça (voir `docs/WORKFLOW.md`).
 
 ```
 Zindabad313/
-├── CLAUDE.md              ← Tu es ici (mémoire principale)
-├── README.md              ← Vitrine publique du repo
+├── CLAUDE.md                       ← Tu es ici (mémoire principale)
+├── README.md                       ← Vitrine publique du repo
+├── package.json                    ← Dépendances Node (Express)
+├── server.js                       ← Serveur Express qui sert public/
 ├── .gitignore
 ├── .claude/
-│   └── settings.json      ← Permissions Claude (autorisations bash, etc.)
+│   └── settings.json               ← Permissions Claude (autorisations bash, etc.)
 ├── docs/
-│   ├── WORKFLOW.md        ← Workflow Git détaillé + commandes
-│   ├── PROJECT.md         ← Infos hébergement, accès, comptes
-│   └── JOURNAL.md         ← Journal des décisions et apprentissages
+│   ├── WORKFLOW.md                 ← Workflow Git détaillé + commandes
+│   ├── PROJECT.md                  ← Infos hébergement, accès, comptes
+│   ├── STITCH.md                   ← Workflow Google Stitch → site
+│   └── JOURNAL.md                  ← Journal des décisions et apprentissages
+├── public/                         ← Fichiers servis (HTML/CSS/JS/images)
+│   ├── index.html                  ← Page d'accueil
+│   └── 404.html                    ← Page erreur 404
 └── scripts/
-    └── ship.sh            ← Script add/commit/push tout-en-un
+    ├── ship.sh                     ← Script add/commit/push tout-en-un
+    └── install-stitch-skill.sh     ← Installe les skills Stitch (en local)
 ```
 
 ## 5. État actuel
@@ -89,8 +96,9 @@ Zindabad313/
 | Sous-domaine `ehsan.laus-angeles.ch` (test) | 🟡 Création en cours sur Infomaniak (Node.js, installation avancée) |
 | Structure projet | ✅ Initialisée |
 | Workflow Claude | ✅ Documenté |
-| Code applicatif | ❌ Pas encore commencé (Express minimal à créer) |
-| Stitch (Google) | 🟡 À utiliser pour générer le HTML/CSS |
+| Squelette Express (server.js + public/) | ✅ Créé, prêt à déployer |
+| Stitch (Google) | 🟡 À utiliser pour générer le HTML/CSS (mode web ou skill en local) |
+| Skill Stitch officiel (Google Labs) | 🟡 Script d'install prêt (`scripts/install-stitch-skill.sh`) — à lancer en local |
 
 ## 6. Ce que Claude doit faire automatiquement
 

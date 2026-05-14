@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Zindabad313 — bac à sable</title>
+    <meta name="description" content="Environnement de test pour le projet gholami.ch" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0b0d12;
+        --fg: #e9eef5;
+        --accent: #5b8def;
+        --muted: #8d94a3;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        line-height: 1.5;
+      }
+      main {
+        max-width: 640px;
+        text-align: center;
+      }
+      h1 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        margin: 0 0 1rem;
+        letter-spacing: -0.02em;
+      }
+      p { color: var(--muted); margin: 0.5rem 0; }
+      .tag {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(91, 141, 239, 0.15);
+        color: var(--accent);
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+      }
+      code {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+      footer {
+        position: fixed;
+        bottom: 1rem;
+        left: 0;
+        right: 0;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <span class="tag">Environnement de test</span>
+      <h1>Zindabad313</h1>
+      <p>Bac à sable pour <code>gholami.ch</code> — propulsé par Node.js sur Infomaniak.</p>
+      <p>Déploiement automatique depuis GitHub.</p>
+    </main>
+    <footer>© Ehsan Gholami — premier déploiement réussi 🚀</footer>
+  </body>
+</html>

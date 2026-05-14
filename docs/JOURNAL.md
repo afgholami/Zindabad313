@@ -7,6 +7,51 @@
 
 ---
 
+## 2026-05-14 — Squelette Express + workflow Stitch
+
+### Contexte
+- Sur Infomaniak, méthode d'installation choisie : **Git** (déploiement
+  automatique depuis le repo GitHub)
+- L'utilisateur veut que je sois son "dev senior full-stack de bout en bout"
+- Demande d'installer le skill Stitch depuis GitHub
+
+### Recherches faites
+- Skill officiel Google Labs : https://github.com/google-labs-code/stitch-skills
+- Compatibilité Claude Code, Cursor, Gemini CLI, Antigravity
+- Skills inclus : `design-md`, `react:components`, `remotion`, `shadcn-ui`, etc.
+- Nécessite un MCP server Stitch + Claude Code en local
+
+### Limitation identifiée
+- Le sandbox **Claude Code on the web** n'a pas d'accès réseau externe
+  (impossible de cloner GitHub, d'appeler le MCP Stitch, etc.)
+- Solution : préparer un script d'install pour quand l'utilisateur sera
+  en local, et en attendant utiliser Stitch via son site web
+  (https://stitch.withgoogle.com) en copier-coller
+
+### Ce qui a été fait
+- `package.json` : Node 22 + Express 4
+- `server.js` : serveur Express minimal qui sert `public/`, avec route `/healthz` et 404
+- `public/index.html` + `public/404.html` : page d'accueil et 404 stylées
+  (placeholder en attendant le design Stitch)
+- `scripts/install-stitch-skill.sh` : clone `google-labs-code/stitch-skills`
+  dans `~/.claude/skills/` (à lancer en local)
+- `docs/STITCH.md` : workflow complet Stitch → site (mode web + mode skill)
+
+### Brief envoyé à l'utilisateur (infos à fournir)
+- URL Git que demande Infomaniak (+ clé SSH publique éventuelle)
+- Chemin du dossier de déploiement sur Infomaniak
+- Port que Node doit écouter (souvent `process.env.PORT`)
+- Confirmation accès gholami.ch
+- Plus tard : contenu du site, charte couleurs, logo, langues, etc.
+
+### Prochaines étapes
+- [ ] L'utilisateur fournit l'URL Git + clé SSH éventuelle sur Infomaniak
+- [ ] Tester le déploiement avec la page de test actuelle
+- [ ] Vérifier que `ehsan.laus-angeles.ch` répond correctement
+- [ ] Une fois OK : générer le premier vrai design via Stitch et l'intégrer
+
+---
+
 ## 2026-05-14 — Choix stack & sous-domaine de test
 
 ### Contexte
